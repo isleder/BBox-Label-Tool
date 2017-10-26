@@ -31,8 +31,6 @@ class LabelTool():
         # initialize global state
         self.imageDir = ''
         self.imageList= []
-        self.egDir = ''
-        self.egList = []
         self.outDir = ''
         self.cur = 0
         self.total = 0
@@ -67,9 +65,9 @@ class LabelTool():
         self.mainPanel.bind("<Button-1>", self.mouseClick)
         self.mainPanel.bind("<Motion>", self.mouseMove)
         self.parent.bind("<Escape>", self.cancelBBox)  # press <Espace> to cancel current bbox
-        self.parent.bind("s", self.cancelBBox)
-        self.parent.bind("a", self.prevImage) # press 'a' to go backforward
-        self.parent.bind("d", self.nextImage) # press 'd' to go forward
+        self.parent.bind("-", self.cancelBBox)
+        self.parent.bind("[", self.prevImage) # press 'a' to go backforward
+        self.parent.bind("]", self.nextImage) # press 'd' to go forward
         self.mainPanel.grid(row = 1, column = 1, rowspan = 4, sticky = W+N)
 
         # showing bbox info & delete bbox
@@ -98,16 +96,6 @@ class LabelTool():
         self.goBtn = Button(self.ctrPanel, text = 'Go', command = self.gotoImage)
         self.goBtn.pack(side = LEFT)
 
-        # example pannel for illustration
-        self.egPanel = Frame(self.frame, border = 10)
-        self.egPanel.grid(row = 1, column = 0, rowspan = 5, sticky = N)
-        self.tmpLabel2 = Label(self.egPanel, text = "Examples:")
-        self.tmpLabel2.pack(side = TOP, pady = 5)
-        self.egLabels = []
-        for i in range(3):
-            self.egLabels.append(Label(self.egPanel))
-            self.egLabels[-1].pack(side = TOP)
-
         # display mouse position
         self.disp = Label(self.ctrPanel, text='')
         self.disp.pack(side = RIGHT)
@@ -115,25 +103,16 @@ class LabelTool():
         self.frame.columnconfigure(1, weight = 1)
         self.frame.rowconfigure(4, weight = 1)
 
-        # for debugging
-##        self.setImage()
-##        self.loadDir()
+    def loadDir(self):
+        s = self.entry.get()
 
-    def loadDir(self, dbg = False):
-        if not dbg:
-            s = self.entry.get()
-            self.parent.focus()
-            self.category = int(s)
-        else:
-            s = r'D:\workspace\python\labelGUI'
-##        if not os.path.isdir(s):
-##            tkMessageBox.showerror("Error!", message = "The specified dir doesn't exist!")
-##            return
-        # get image list
-        self.imageDir = os.path.join(r'./Images', '%03d' %(self.category))
-        self.imageList = glob.glob(os.path.join(self.imageDir, '*.JPEG'))
+        self.imageDir = os.path.join(r'/home/riccardo/darknet/images/', '%s' %(s))
+        self.imageList = glob.glob(os.path.join(self.imageDir, '*.jpg'))
+
+        print 'Directory: %s' %(self.imageDir)
+
         if len(self.imageList) == 0:
-            print 'No .JPEG images found in the specified dir!'
+            print 'No .jpg images found in the specified dir!'
             return
 
         # default to the 1st image in the collection
@@ -141,27 +120,9 @@ class LabelTool():
         self.total = len(self.imageList)
 
          # set up output dir
-        self.outDir = os.path.join(r'./Labels', '%03d' %(self.category))
+        self.outDir = os.path.join(r'/home/riccardo/darknet/labels/', '%s' %(s))
         if not os.path.exists(self.outDir):
             os.mkdir(self.outDir)
-
-        # load example bboxes
-        self.egDir = os.path.join(r'./Examples', '%03d' %(self.category))
-        if not os.path.exists(self.egDir):
-            return
-        filelist = glob.glob(os.path.join(self.egDir, '*.JPEG'))
-        self.tmp = []
-        self.egList = []
-        random.shuffle(filelist)
-        for (i, f) in enumerate(filelist):
-            if i == 3:
-                break
-            im = Image.open(f)
-            r = min(SIZE[0] / im.size[0], SIZE[1] / im.size[1])
-            new_size = int(r * im.size[0]), int(r * im.size[1])
-            self.tmp.append(im.resize(new_size, Image.ANTIALIAS))
-            self.egList.append(ImageTk.PhotoImage(self.tmp[-1]))
-            self.egLabels[i].config(image = self.egList[-1], width = SIZE[0], height = SIZE[1])
 
         self.loadImage()
         print '%d images loaded from %s' %(self.total, s)
