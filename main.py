@@ -20,7 +20,7 @@ COLORS = ['red', 'blue', 'yellow', 'pink', 'cyan', 'green', 'black']
 SIZE = 256, 256
 
 class LabelTool():
-    def __init__(self, master):
+    def __init__(self, master, imgdir, labeldir):
         # set up the main frame
         self.parent = master
         self.parent.title("LabelTool")
@@ -29,9 +29,10 @@ class LabelTool():
         self.parent.resizable(width = FALSE, height = FALSE)
 
         # initialize global state
+        self.imgdir_default = imgdir
         self.imageDir = ''
         self.imageList= []
-        self.outDir = ''
+        self.outDir = labeldir
         self.cur = 0
         self.total = 0
         self.category = 0
@@ -106,7 +107,7 @@ class LabelTool():
     def loadDir(self):
         s = self.entry.get()
 
-        self.imageDir = os.path.join(r'/home/riccardo/darknet/images/', '%s' %(s))
+        self.imageDir = os.path.join(self.imgdir_default, '%s' %(s))
         self.imageList = glob.glob(os.path.join(self.imageDir, '*.jpg'))
 
         print 'Directory: %s' %(self.imageDir)
@@ -120,7 +121,7 @@ class LabelTool():
         self.total = len(self.imageList)
 
          # set up output dir
-        self.outDir = os.path.join(r'/home/riccardo/darknet/labels/', '%s' %(s))
+        self.outDir = os.path.join(self.outDir, '%s' %(s))
         if not os.path.exists(self.outDir):
             os.mkdir(self.outDir)
 
@@ -248,7 +249,12 @@ class LabelTool():
 ##        self.mainPanel.create_image(0, 0, image = self.tkimg, anchor=NW)
 
 if __name__ == '__main__':
+    
+    if len(sys.argv) < 3:
+        print "usage: python main.py imgdir labeldir"
+        sys.exit(1)
+
     root = Tk()
-    tool = LabelTool(root)
+    tool = LabelTool(root, sys.argv[1], sys.argv[2])
     root.resizable(width =  True, height = True)
     root.mainloop()
