@@ -109,7 +109,7 @@ class LabelTool():
 
         self.imageDir = os.path.join(self.imgdir_default, '%s' %(s))
         self.imageList = glob.glob(os.path.join(self.imageDir, '*.jpg'))
-
+        self.imageList.extend(glob.glob(os.path.join(self.imageDir, '*.png')))
         print 'Directory: %s' %(self.imageDir)
 
         if len(self.imageList) == 0:
