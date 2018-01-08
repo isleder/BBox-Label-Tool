@@ -226,13 +226,19 @@ class LabelTool():
         self.saveImage()
         if self.cur > 1:
             self.cur -= 1
+            self.nextBtn['state'] = 'normal'
             self.loadImage()
+        else:
+            self.prevBtn['state'] = 'disabled'
 
     def nextImage(self, event = None):
         self.saveImage()
         if self.cur < self.total:
             self.cur += 1
+            self.prevBtn['state'] = 'normal'
             self.loadImage()
+        else:
+            self.nextBtn['state'] = 'disabled'
 
     def gotoImage(self):
         idx = int(self.idxEntry.get())
