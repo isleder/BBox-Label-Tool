@@ -157,10 +157,11 @@ class LabelTool():
                                                             width = 2, \
                                                             outline = COLORS[(len(self.bboxList)-1) % len(COLORS)])
                     self.bboxIdList.append(tmpId)
-                    self.listbox.insert(END, '(%d, %d) -> (%d, %d)' %(tmp[0], tmp[1], tmp[2], tmp[3]))
+                    self.listbox.insert(END, '%d,%d %d,%d w%d h%d' %(tmp[0], tmp[1], tmp[2], tmp[3], tmp[2]-tmp[0], tmp[3]-tmp[1]))
                     self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
 
     def saveImage(self):
+        if len(self.bboxList) == 0: return
         with open(self.labelfilename, 'w') as f:
             f.write('%d\n' %len(self.bboxList))
             for bbox in self.bboxList:
@@ -177,7 +178,7 @@ class LabelTool():
             self.bboxList.append((x1, y1, x2, y2))
             self.bboxIdList.append(self.bboxId)
             self.bboxId = None
-            self.listbox.insert(END, '(%d, %d) -> (%d, %d)' %(x1, y1, x2, y2))
+            self.listbox.insert(END, '%d,%d %d,%d w%d h%d' %(x1, y1, x2, y2, x2-x1, y2-y1))
             self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
         self.STATE['click'] = 1 - self.STATE['click']
 
@@ -255,7 +256,7 @@ class LabelTool():
 ##        self.mainPanel.create_image(0, 0, image = self.tkimg, anchor=NW)
 
 if __name__ == '__main__':
-    
+
     if len(sys.argv) < 3:
         print "usage: python main.py imgdir labeldir"
         sys.exit(1)
